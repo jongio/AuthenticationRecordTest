@@ -1,6 +1,7 @@
 ﻿using System;
 using System.IO;
 using System.Threading.Tasks;
+using Azure.Core;
 using Azure.Identity;
 using Azure.Security.KeyVault.Secrets;
 
@@ -10,11 +11,22 @@ namespace AuthenticationRecordTest
     {
         static async Task Main(string[] args)
         {
-            // 1. Create TokenCredential object with TokenCache set
+
+            // var cred = new DefaultAzureCredential();
+            // var token = cred.GetTokenAsync(
+            //     new TokenRequestContext(scopes: new string[] { "your scope here" }) { }
+            // );
+
+
+
+            // 1. Create TokenCredential object with TokenCachePersistenceOptions set
             var credentialOne = new InteractiveBrowserCredential(
                 new InteractiveBrowserCredentialOptions
                 {
-                    TokenCache = new PersistentTokenCache(new PersistentTokenCacheOptions() { Name = "AuthenticationRecord.cache" })
+                    TokenCachePersistenceOptions = new TokenCachePersistenceOptions()
+                    {
+                        Name = "AuthenticationRecord.cache"
+                    }
                 });
 
             // 2. Prompt user to authenticate
@@ -39,21 +51,29 @@ namespace AuthenticationRecordTest
             var credentialTwo = new InteractiveBrowserCredential(
                 new InteractiveBrowserCredentialOptions
                 {
-                    TokenCache = new PersistentTokenCache(new PersistentTokenCacheOptions() { Name = "AuthenticationRecord.cache" }),
+                    TokenCachePersistenceOptions = new TokenCachePersistenceOptions()
+                    {
+                        Name = "AuthenticationRecord.cache"
+                    },
                     AuthenticationRecord = authRecordRead
                 });
+
+
 
             // 5.1 Same as above but with DisableAutomaticAuthentication set to true
             // var credentialTwo = new InteractiveBrowserCredential(
             //     new InteractiveBrowserCredentialOptions
             //     {
-            //         TokenCache = new PersistentTokenCache(new PersistentTokenCacheOptions() { Name = "AuthenticationRecord.cache" }),
+            //         TokenCachePersistenceOptions = new TokenCachePersistenceOptions()
+            //         {
+            //             Name = "AuthenticationRecord.cache"
+            //         },
             //         AuthenticationRecord = authRecordRead,
             //         DisableAutomaticAuthentication = true
             //     });
 
             // 6. Use the new TokenCredential object. User will not be prompted to re-authenticate if token has expired.
-            var client = new SecretClient(new Uri("https://memealyzerdev9kv.vault.azure.net/"), credentialTwo);
+            var client = new SecretClient(new Uri("https://memealyzerdevkv.vault.azure.net/"), credentialTwo);
 
             try
             {
